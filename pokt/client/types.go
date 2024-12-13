@@ -56,10 +56,18 @@ type TxResult struct {
 	Code        int64  `json:"code"`
 	Codespace   string `json:"codespace"`
 	Data        string `json:"data"`
-	Events      string `json:"events"`
 	Info        string `json:"info"`
 	Log         string `json:"log"`
 	MessageType string `json:"message_type"`
 	Recipient   string `json:"recipient"`
 	Signer      string `json:"signer"`
+}
+
+type RPCError struct {
+	Jsonrpc string `json:"jsonrpc"`
+	Id      string `json:"id"`
+	Error   struct {
+		Code    int64  `json:"code"`
+		Message string `json:"message"`
+	} `json:"error"`
 }

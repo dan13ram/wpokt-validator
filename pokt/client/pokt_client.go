@@ -130,6 +130,7 @@ func init() {
 
 func queryRPC(path string, jsonArgs []byte) (string, error) {
 	cliURL := app.Config.Pocket.RPCURL + path
+	log.Debugln("[POKT] Querying RPC", cliURL)
 
 	req, err := http.NewRequest("POST", cliURL, bytes.NewBuffer(jsonArgs))
 	if err != nil {
@@ -157,12 +158,20 @@ func queryRPC(path string, jsonArgs []byte) (string, error) {
 		bz = []byte(res)
 	}
 
-	if resp.StatusCode == http.StatusOK {
+	// Check if the status code is 2XX
+	if resp.StatusCode >= 200 && resp.StatusCode <= 299 {
 		var prettyJSON bytes.Buffer
 		err = json.Indent(&prettyJSON, bz, "", "    ")
 		if err == nil {
-			return prettyJSON.String(), nil
+			res := prettyJSON.String()
+			var obj RPCError
+			innerErr := json.Unmarshal([]byte(res), &obj)
+			if innerErr == nil && obj.Error.Code != 0 {
+				return "", fmt.Errorf("the rpc response returned an error: %+v", obj.Error)
+			}
+			return res, nil
 		}
+
 		return string(bz), nil
 	}
 	return "", fmt.Errorf("the http status code was not okay: %d, with a response of %+v", resp.StatusCode, resp)
@@ -222,9 +231,9 @@ func (c *pocketClient) getAccountTxsPerPage(address string, page uint32) (*Accou
 	params := rpc.PaginateAddrParams{
 		Address:  address,
 		Page:     int(page),
-		PerPage:  1000,
+		PerPage:  50,
 		Received: true,
-		Prove:    true,
+		Prove:    false,
 		Sort:     "asc",
 	}
 	j, err := json.Marshal(params)

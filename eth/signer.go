@@ -148,8 +148,13 @@ func (x *MintSignerRunner) ValidateMint(mint *models.Mint) (bool, error) {
 		return false, errors.New("Error fetching transaction: " + err.Error())
 	}
 
-	if tx.Tx == "" || tx.TxResult.Code != 0 {
-		log.Debug("[MINT SIGNER] Transaction not found or failed")
+	if tx == nil || tx.Tx == "" {
+		log.Debug("[MINT SIGNER] Transaction not found")
+		return false, errors.New("Transaction not found")
+	}
+
+	if tx.TxResult.Code != 0 {
+		log.Debug("[MINT SIGNER] Transaction failed")
 		return false, nil
 	}
 

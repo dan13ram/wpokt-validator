@@ -61,6 +61,11 @@ func (x *BurnExecutorRunner) HandleInvalidMint(doc *models.InvalidMint) bool {
 			return false
 		}
 
+		if res == nil || strings.TrimSpace(res.TransactionHash) == "" {
+			log.Error("[BURN EXECUTOR] Invalid mint return tx hash not found")
+			return false
+		}
+
 		filter = bson.M{
 			"_id":    doc.Id,
 			"status": models.StatusSigned,
@@ -78,6 +83,10 @@ func (x *BurnExecutorRunner) HandleInvalidMint(doc *models.InvalidMint) bool {
 		tx, err := x.client.GetTx(doc.ReturnTxHash)
 		if err != nil {
 			log.Error("[BURN EXECUTOR] Error fetching transaction: ", err)
+			return false
+		}
+		if tx == nil || tx.Tx == "" {
+			log.Error("[BURN EXECUTOR] Invalid mint return tx not found: ", doc.ReturnTxHash)
 			return false
 		}
 
@@ -143,6 +152,11 @@ func (x *BurnExecutorRunner) HandleBurn(doc *models.Burn) bool {
 			return false
 		}
 
+		if res == nil || strings.TrimSpace(res.TransactionHash) == "" {
+			log.Error("[BURN EXECUTOR] Burn return tx hash not found")
+			return false
+		}
+
 		filter = bson.M{
 			"_id":    doc.Id,
 			"status": models.StatusSigned,
@@ -160,6 +174,11 @@ func (x *BurnExecutorRunner) HandleBurn(doc *models.Burn) bool {
 		tx, err := x.client.GetTx(doc.ReturnTxHash)
 		if err != nil {
 			log.Error("[BURN EXECUTOR] Error fetching transaction: ", err)
+			return false
+		}
+
+		if tx == nil || tx.Tx == "" {
+			log.Error("[BURN EXECUTOR] Burn return tx not found: ", doc.ReturnTxHash)
 			return false
 		}
 

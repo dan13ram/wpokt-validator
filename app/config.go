@@ -2,6 +2,7 @@ package app
 
 import (
 	"os"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 
@@ -65,6 +66,9 @@ func validateConfig() {
 	}
 	if Config.Ethereum.PrivateKey == "" {
 		log.Fatal("[CONFIG] Ethereum.PrivateKey is required")
+	}
+	if strings.HasPrefix(Config.Ethereum.PrivateKey, "0x") {
+		Config.Ethereum.PrivateKey = Config.Ethereum.PrivateKey[2:]
 	}
 	if Config.Ethereum.WrappedPocketAddress == "" {
 		log.Fatal("[CONFIG] Ethereum.WrappedPocketAddress is required")

@@ -79,8 +79,12 @@ func (x *BurnSignerRunner) ValidateInvalidMint(doc *models.InvalidMint) (bool, e
 		return false, errors.New("Error fetching transaction: " + err.Error())
 	}
 
-	if tx.Tx == "" || tx.TxResult.Code != 0 {
-		log.Debug("[BURN SIGNER] Transaction not found or failed")
+	if tx == nil || tx.Tx == "" {
+		return false, errors.New("Transaction not found")
+	}
+
+	if tx.TxResult.Code != 0 {
+		log.Debug("[BURN SIGNER] Transaction failed")
 		return false, nil
 	}
 
@@ -159,6 +163,10 @@ func (x *BurnSignerRunner) HandleInvalidMint(doc *models.InvalidMint) bool {
 				"status":     models.StatusFailed,
 				"updated_at": time.Now(),
 			},
+		}
+		if doc.Confirmations == "0" {
+			log.Debug("[BURN SIGNER] Invalid mint has no confirmations, skipping")
+			return false
 		}
 	} else {
 
@@ -291,6 +299,10 @@ func (x *BurnSignerRunner) HandleBurn(doc *models.Burn) bool {
 				"status":     models.StatusFailed,
 				"updated_at": time.Now(),
 			},
+		}
+		if doc.Confirmations == "0" {
+			log.Debug("[BURN SIGNER] Burn has no confirmations, skipping")
+			return false
 		}
 	} else {
 

@@ -123,7 +123,7 @@ func (x *BurnMonitorRunner) SyncBlocks(startBlockNumber uint64, endBlockNumber u
 
 func (x *BurnMonitorRunner) SyncTxs() bool {
 	if x.currentBlockNumber <= x.startBlockNumber {
-		log.Info("[BURN MONITOR] [MINT EXECUTOR] No new blocks to sync")
+		log.Info("[BURN MONITOR] No new blocks to sync")
 		return true
 	}
 
